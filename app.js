@@ -6,6 +6,8 @@ const Listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const wrapAsync = require("./utils/wrapAsync.js");
+const ExpressError = require("./utils/ExpressError.js");
 
 app.engine('ejs',ejsMate);
 app.set("view engine","ejs");
@@ -29,10 +31,10 @@ app.get("/",(req,res)=>{
 });
 
 //Index Route
-app.get("/listings",async (req,res)=>{
+app.get("/listings",wrapAsync(async (req,res)=>{
     const allListings=await Listing.find({});
     res.render("listings/index",{allListings});
-});
+}));
 
 //New Route
 app.get("/listings/new",(req,res)=>{
@@ -42,46 +44,60 @@ app.get("/listings/new",(req,res)=>{
 //New Route should be ABOVE Show Route or else the show route will be executed and /new of /listings/new will be treated as a "id" and will be searched in the database which will lead to an FATAL error
 
 //Create Route (Post Request)
-app.post("/listings",async(req,res)=>{
-    let listingData = req.body.listing;
-    if (listingData.image === "") {
+app.post(
+    "/listings",
+    wrapAsync(async(req,res,next)=>{
+        if(!req.body.listing){
+            throw new ExpressError(400,"Send Valid Data for Listing");
+        }
+        let listingData = req.body.listing;
+        if (listingData.image === "") {
         delete listingData.image;
-    }
-    const newListing = new Listing(listingData);
-    await newListing.save();
-    res.redirect("/listings");
-});
+        }
+        const newListing = new Listing(listingData);
+        await newListing.save();
+        res.redirect("/listings");
+    })
+);
 
 //Edit Route
-app.get("/listings/:id/edit",async(req,res)=>{
+app.get("/listings/:id/edit",wrapAsync(async(req,res)=>{
     let{id} = req.params;
     const listing = await Listing.findById(id);
     res.render("listings/edit",{listing});
-});
+}));
 
 //Update Route
-app.put("/listings/:id",async(req,res)=>{
+app.put("/listings/:id",wrapAsync(async(req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndUpdate(id,{...req.body.listing});
     res.redirect(`/listings/${id}`);
-});
+}));
 
 //Delete Route
-app.delete("/listings/:id",async(req,res)=>{
+app.delete("/listings/:id",wrapAsync(async(req,res)=>{
     let {id} = req.params;
     let deletedListing = await Listing.findByIdAndDelete(id);
     console.log(deletedListing);
     res.redirect("/listings")
-});
+}));
 
 //Show Route
-app.get("/listings/:id",async(req,res)=>{
+app.get("/listings/:id",wrapAsync(async(req,res)=>{
     let {id} = req.params;
     const listing = await Listing.findById(id);
     res.render("listings/show",{listing});
+}));
+
+app.all(/.*/,(req,res,next)=>{
+    next(new ExpressError(404,"Page Not Found!"));
 });
 
-
+//Error Handling Middleware
+app.use((err,req,res,next)=>{
+    let{statusCode=500,message="Something Went Wrong"} = err;
+    res.status(statusCode).render("error.ejs",{message});
+});
 
 app.listen(port,()=>{
     console.log("Sever is listening at port: "+port);

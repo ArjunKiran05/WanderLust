@@ -6,11 +6,15 @@
             <div class="mb-3">
                 <lable for="title" class="form-label">Title</lable>
                 <input name="listing[title]" placeholder="Enter Title" type="text" required class="form-control">
+                <div class="invalid-feedback">Please Enter a Title</div>
+                <div class="valid-feedback">Title Looks Good</div>
             </div>
             <div class="mb-3">
                 <lable for="description" class="form-label">Description</lable>
                 <textarea name="listing[description]" placeholder="Enter Description" required class="form-control" ></textarea>
+                <div class="invalid-feedback">Please Enter a Brief Description</div>
             </div>
+            
             <div class="mb-3">
                 <lable for="image" class="form-label">Image Link</lable>
                 <input name="listing[image]" placeholder="Enter Image URL/Link" type="text" class="form-control">
@@ -19,16 +23,19 @@
                 <div class="mb-3 col-md-4">
                     <lable for="price" class="form-label">Price</lable>
                     <input name="listing[price]" placeholder="Enter Price" type="number" required class="form-control" >
+                    <div class="invalid-feedback">Please Enter a Valid Price</div>
                 </div>
                 <div class="mb-3 col-md-8">
                     <lable for="country" class="form-label">Country</lable>
                     <input name="listing[country]" placeholder="Enter Country" type="text" required class="form-control" >
+                    <div class="invalid-feedback">Please Enter a Country Name</div>
                 </div>
             </div>
             
             <div class="mb-3">
                 <lable for="location" class="form-label">Location</lable>
                 <input name="listing[location]" placeholder="Enter Location" type="text" required class="form-control" >
+                <div class="invalid-feedback">Please Enter a Valid Location</div>
             </div>
             <button class="btn btn-dark add-btn mt-3">ADD</button>
         </form>
