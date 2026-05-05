@@ -31,9 +31,10 @@ router.get("/new",(req,res)=>{
 //New Route should be ABOVE Show Route or else the show route will be executed and /new of /listings/new will be treated as a "id" and will be searched in the database which will lead to an FATAL error
 
 //Create Route (Post Request)
-router.post("/lisings",validateListing,wrapAsync(async(req,res,next)=>{
+router.post("/",validateListing,wrapAsync(async(req,res,next)=>{
     const newListing = new Listing(req.body.listing);
     await newListing.save();
+    req.flash('success','New Listing Created');
     res.redirect("/listings");
 }));
 
